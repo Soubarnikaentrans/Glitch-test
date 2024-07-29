@@ -1,0 +1,6 @@
+Flask
+PyMuPDF
+nltk
+scikit-learn
+requests
+numpy
