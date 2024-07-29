@@ -66,35 +66,25 @@
             addMessage("user", message);
             input.value = "";
 
-            fetch("/chat", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ message: message })
-            })
-            .then(response => response.json())
-            .then(data => {
-                addMessage("bot", data.response);
-            })
-            .catch(error => {
+            try {
+                const response = await fetch("/chat", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    addMessage("bot", data.response);
+                } else {
+                    console.error("Error:", response.statusText);
+                    addMessage("bot", "Error: Could not retrieve information.");
+                }
+            } catch (error) {
                 console.error("Error:", error);
-            });
-            const userInput = document.getElementById('user-input').value;
-
-            const response = await fetch('/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ message: userInput })
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                document.getElementById('response').innerText = data.response;
-            } else {
-                console.error('Error:', response.statusText);
+                addMessage("bot", "Error: Could not retrieve information.");
             }
         }
 
@@ -109,4 +99,3 @@
     </script>
 </body>
 </html>
-        
