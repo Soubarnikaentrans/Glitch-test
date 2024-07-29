@@ -73,7 +73,7 @@ nltk.download('stopwords')
 app = Flask(__name__)
 
 # URL of the PDF on GitHub
-pdf_url = "https://raw.githubusercontent.com/Soubarnikaentrans/Glitch/main/report.pdf"
+pdf_url = "https://raw.githubusercontent.com/Soubarnikaentrans/Glitch-test/main/report.pdf"
 pdf_path = "report.pdf"
 
 # Download the PDF from GitHub
