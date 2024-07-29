@@ -65,7 +65,7 @@ from flask import Flask, request, jsonify, render_template
 from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
 import requests
-import os
+import io
 
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -73,22 +73,18 @@ nltk.download('stopwords')
 app = Flask(__name__)
 
 # URL of the PDF on GitHub
-pdf_url = "https://raw.githubusercontent.com/Soubarnikaentrans/Glitch-test/main/report.pdf"
-pdf_path = "report.pdf"
+pdf_url = "https://raw.githubusercontent.com/Soubarnikaentrans/Glitch/main/report.pdf"
 
-# Download the PDF from GitHub
-def download_pdf(url, path):
+# Download and process the PDF from GitHub
+def download_pdf_from_url(url):
+    print(f"Downloading PDF from {url}")
     response = requests.get(url)
     response.raise_for_status()  # Check if the request was successful
-    with open(path, 'wb') as file:
-        file.write(response.content)
+    return io.BytesIO(response.content)
 
-def extract_text_from_pdf(pdf_path):
-    if not os.path.exists(pdf_path):
-        print(f"File {pdf_path} does not exist.")
-        return ""
+def extract_text_from_pdf(pdf_stream):
     try:
-        document = fitz.open(pdf_path)
+        document = fitz.open(stream=pdf_stream)
         text = ""
         for page_num in range(len(document)):
             page = document.load_page(page_num)
@@ -110,15 +106,9 @@ def preprocess_text(text):
         print(f"An error occurred during text preprocessing: {e}")
         return [], []
 
-# Download the PDF file
-try:
-    download_pdf(pdf_url, pdf_path)
-    print(f"PDF downloaded successfully from {pdf_url}")
-except Exception as e:
-    print(f"An error occurred while downloading the PDF: {e}")
-
-# Extract and preprocess text from the PDF
-pdf_text = extract_text_from_pdf(pdf_path)
+# Fetch the PDF from GitHub and process it
+pdf_stream = download_pdf_from_url(pdf_url)
+pdf_text = extract_text_from_pdf(pdf_stream)
 processed_text, original_sentences = preprocess_text(pdf_text)
 
 # Check if the text extraction and preprocessing were successful
@@ -135,7 +125,9 @@ def home():
 @app.route("/chat", methods=["POST"])
 def chat():
     user_input = request.json.get("message")
+    print(f"Received message: {user_input}")
     response = retrieve_information(user_input)
+    print(f"Response: {response}")
     return jsonify({"response": response})
 
 def retrieve_information(query):
@@ -147,4 +139,4 @@ def retrieve_information(query):
     return " ".join(relevant_sentences)
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5001)
+    app.run(debug=True, port=3000)
