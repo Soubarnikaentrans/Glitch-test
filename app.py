@@ -66,6 +66,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
 import requests
 import io
+import os
 
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -139,4 +140,5 @@ def retrieve_information(query):
     return " ".join(relevant_sentences)
 
 if __name__ == "__main__":
-    app.run(debug=True, port=3000)
+    port = int(os.environ.get('PORT', 3000))
+    app.run(host='0.0.0.0', port=port)
